@@ -19,5 +19,13 @@ public class TextProcessorService {
         log.debug(result.toString());
         return result;
     }
+
+    public ExtractedResult fuzzyStringSearchBestMatch(String queryString, List<String> choices) {
+        Assert.hasLength(queryString, "Query string cannot be empty!");
+        ExtractedResult result = FuzzySearch.extractOne(queryString, choices);
+        log.debug(result.toString());
+        // return only top result
+        return result;
+    }
     
 }

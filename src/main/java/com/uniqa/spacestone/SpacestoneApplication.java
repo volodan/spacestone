@@ -1,5 +1,12 @@
 package com.uniqa.spacestone;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.uniqa.spacestone.dto.DocumentTypeEnum;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -27,4 +34,14 @@ public class SpacestoneApplication {
 
 		return tesseract;
 	} 
+
+	@Bean
+	public Map<DocumentTypeEnum, List<String>> documentTypeConfigMap() {
+		Map<DocumentTypeEnum, List<String>> configMap = new LinkedHashMap<>();	
+		configMap.put(DocumentTypeEnum.PHARMACY_BILL, Arrays.asList("apotheke"));
+		configMap.put(DocumentTypeEnum.DOCTORS_BILL, Arrays.asList("honorarnote"));
+		configMap.put(DocumentTypeEnum.SVA, Arrays.asList("Österreichische","Gesundheitskasse"));
+
+		return configMap;
+	}
 }
