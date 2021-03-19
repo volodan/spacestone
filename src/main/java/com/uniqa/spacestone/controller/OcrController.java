@@ -80,30 +80,41 @@ public class OcrController {
         processDocument(document, (pageText) -> {
 
             log.debug("Recognized text: \n{}", pageText);
-            List<String> wordsInPageText = Arrays.asList(pageText.split("\\s+"));
-            // remove all empty places
-            wordsInPageText.forEach(item -> item.trim());
 
-            // now do fuzzy search for every query string in the page
-            for (DocumentTypeEnum typeKey: documentTypeConfigMap.keySet()) {
-                List<ExtractedResult> tempSearchResults = new ArrayList<>();
+            // check if there are more than 100 letters as a threshold for recognized
+            String compString = pageText.replaceAll("\\s+", "");
+            if (!StringUtils.hasText(compString) || compString.length() < 70) {
+                log.debug("Recognized text without white chars: \"{}\", length: {}", compString, compString.length());
+                documentTypes.add(DocumentTypeEnum.NOT_RECOGNIZED);
 
-                // iterate through all the keywords and find their score, if average score is then > 80, document is the type
-                // of the evaluated search key 
-                for (String queryString : documentTypeConfigMap.get(typeKey)) {
-                    tempSearchResults.add(textProcessorService.fuzzyStringSearchBestMatch(queryString, 
-                        wordsInPageText.stream().filter(word -> (StringUtils.hasText(word) && word.length() > 3 )).collect(Collectors.toList())));
+            // if more than 100 letters, proceed with rules for different types of documents
+            } else {
+                List<String> wordsInPageText = Arrays.asList(pageText.split("\\s+"));
+                // remove all empty places
+                wordsInPageText.forEach(item -> item.trim());
+    
+                // now do fuzzy search for every query string in the page
+                for (DocumentTypeEnum typeKey: documentTypeConfigMap.keySet()) {
+                    List<ExtractedResult> tempSearchResults = new ArrayList<>();
+    
+                    // iterate through all the keywords and find their score, if average score is then > 80, document is the type
+                    // of the evaluated search key 
+                    for (String queryString : documentTypeConfigMap.get(typeKey)) {
+                        tempSearchResults.add(textProcessorService.fuzzyStringSearchBestMatch(queryString, 
+                            wordsInPageText.stream().filter(word -> (StringUtils.hasText(word) && word.length() > 3 )).collect(Collectors.toList())));
+                    }
+                    double avgScore = tempSearchResults.stream().mapToInt(item -> item.getScore()).summaryStatistics().getAverage();
+                    log.debug("Avg score for the type {} in document {} is: {}", typeKey, document.getOriginalFilename(), avgScore);
+                    if (avgScore > 75.0) documentTypes.add(typeKey);
                 }
-                double avgScore = tempSearchResults.stream().mapToInt(item -> item.getScore()).summaryStatistics().getAverage();
-                log.debug("Avg score for the type {} in document {} is: {}", typeKey, document.getOriginalFilename(), avgScore);
-                if (avgScore > 75.0) documentTypes.add(typeKey);
             }
+            
         });
 
         return ResponseEntity.ok().body(
             documentTypes.size() > 0 ? 
                 DocumentTypeDto.builder().documentType(documentTypes).build() : 
-                DocumentTypeDto.builder().documentType(Arrays.asList(DocumentTypeEnum.NOT_RECOGNIZED)).build()
+                DocumentTypeDto.builder().documentType(Arrays.asList(DocumentTypeEnum.GENERAL)).build()
         );
     }
 
