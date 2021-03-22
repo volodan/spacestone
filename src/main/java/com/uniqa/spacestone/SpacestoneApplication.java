@@ -26,8 +26,9 @@ public class SpacestoneApplication {
 
 		// FIXME - can be set as an absolute path
 		// set path to tess learned data for OCR
-        tesseract.setDatapath(System.getenv("TESSDATA_PREFIX")); // this was set in OS
-        
+//        tesseract.setDatapath(System.getenv("TESSDATA_PREFIX")); // this was set in OS
+        tesseract.setDatapath("/usr/local/Cellar/tesseract/4.1.1/share/tessdata");
+
 		// set language and psm for page segmentation, 3 means, that page contains more lines
         tesseract.setPageSegMode(3);
         tesseract.setLanguage("deu");

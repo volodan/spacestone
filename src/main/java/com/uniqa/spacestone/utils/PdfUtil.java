@@ -23,8 +23,8 @@ public class PdfUtil {
     private Tesseract tesseract;
 
     public DocumentDto processPdfDocument(MultipartFile document) {
-        log.debug("-----------------------------------------------------");
-        log.debug("Document: " + document.getOriginalFilename());
+//        log.debug("-----------------------------------------------------");
+//        log.debug("Document: " + document.getOriginalFilename());
         List<String> pages = new ArrayList<>();
 
         try {
@@ -33,12 +33,12 @@ public class PdfUtil {
             PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
 
             for (int page = 0; page < pdfDoc.getNumberOfPages(); page++) {
-                log.debug("Page number: " + page);
+//                log.debug("Page number: " + page);
                 BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(page, 96, ImageType.GRAY);
                 String pageText = tesseract.doOCR(bufferedImage);
-                log.debug(pageText);
+//                log.debug(pageText);
                 pages.add(pageText);
-                log.debug("Page Finish.");
+//                log.debug("Page Finish.");
             }
 
         } catch (Exception e) {
@@ -52,8 +52,8 @@ public class PdfUtil {
         pages.stream().map(page -> Arrays.asList(page.split("\\s+"))).forEach(words::addAll);
         words.forEach(String::trim);
         result.setWords(words);
-        log.debug("Document finish.");
-        log.debug("-----------------------------------------------------");
+//        log.debug("Document finish.");
+//        log.debug("-----------------------------------------------------");
         return result;
     }
 }
