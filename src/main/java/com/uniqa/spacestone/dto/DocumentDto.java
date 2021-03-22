@@ -1,2 +1,14 @@
-package com.uniqa.spacestone.dto;public class DocumentDto {
+package com.uniqa.spacestone.dto;
+
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class DocumentDto {
+
+    private String filename;
+    private List<String> pages;
+    private List<String> words;
+
 }
